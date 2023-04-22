@@ -86,3 +86,14 @@ def getToken()->tp:
     while state != States.HECHO:
         c = getNextChar()
         if state == States.INICIO:
+            if c.isdigit():
+                state = States.EENTEROS
+            elif c.isalnum() or c == "_":
+                state = States.EID
+            elif c == ":":
+                state = States.EASIGNA
+            elif c == "+":
+                state = States.EMAS
+            elif c == "-":
+                state = States.EMENOS
+                
