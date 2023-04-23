@@ -2,7 +2,7 @@ import sys
 from globall import TokenType as tp
 from globall import lineno
 from enum import Enum
-
+from util import *
 bufsize = 0
 MaxTokenLen = 40
 TokenString = list()
@@ -11,6 +11,8 @@ MAXBUFFER = 1024
 namefile = sys.argv[1]
 source = open(namefile,'r')
 colpos = 0
+consume:bool  = True
+c:str
 reservedWords ={
     'MAIN':tp.MAIN,
     'IF':tp.IF,
@@ -24,7 +26,7 @@ reservedWords ={
     'CIN':tp.CIN,
     'COUT':tp.COUT,
     'REAL':tp.REAL,
-    'INT':tp.REAL,
+    'INT':tp.INT,
     'BOOLEAN':tp.BOOLEAN
 
 
@@ -53,47 +55,149 @@ class States(Enum):
     HECHO = 19
     
 def getNextChar():
+    global colpos
+    global bufsize
+    global source
+    global linea,lineno
     if( not(colpos < bufsize) ):
         linea = source.readline()
-        if not linea:
+        
+        if  linea:
             lineno+=1
             bufsize = len(linea)
             colpos = 0
             char = linea[colpos]
+            colpos+=1
             return char
         else:
-            return tp.ENDFILE    
+            
+            return "EOF"    
     else:
         char = linea[colpos]
+        
         colpos+=1
         return char
+    
         
 def ungetChar():
+    global colpos
     colpos-=1
 
 def isReservedWord(tokenString:str)->tp:
     for key in reservedWords.keys():
-        if(reservedWords[key] == tokenString):
+        if(key.lower() == tokenString):
+            
             return reservedWords[key]
 
     return tp.ID    
 
 def getToken()->tp:
-
+    global consume,c
     tokenStringIndex = 0
     currentToken:tp
-    state:States
+    state:States = States.INICIO
+    
     while state != States.HECHO:
-        c = getNextChar()
+      
+        if consume == True: 
+            c = getNextChar()
+        
         if state == States.INICIO:
-            if c.isdigit():
+            consume = True
+            while c in ['\n' , '\t' , ' '] :
+                c = getNextChar()
+                
+            if type(c) is tp:
+                c = "EOF"
+               
+            TokenString.append(c)
+           
+            if   c == "EOF":
+                state = States.HECHO
+                currentToken = tp.ENDFILE
+            elif c.isdigit():
                 state = States.EENTEROS
             elif c.isalnum() or c == "_":
                 state = States.EID
+               
             elif c == ":":
                 state = States.EASIGNA
             elif c == "+":
                 state = States.EMAS
             elif c == "-":
                 state = States.EMENOS
+            elif c == "/":
+                state = States.EPCOMM
+            elif c == ">":
+                state = States.EMAYOR
+            elif c == "<":
+                state = States.EMENOR
+            elif c == "*":
+                currentToken = tp.TIMES
+                state = States.HECHO
+            elif c == "%":
+                currentToken = tp.REMAINDER
+                state = States.HECHO
+            elif c == "(":
+                currentToken = tp.LPAREN
+                state = States.HECHO
+            elif c == ")":
+                currentToken = tp.RPAREN
+                state = States.HECHO
+            elif c == "{":
+                currentToken = tp.LBPAREN
+                state = States.HECHO
+            elif c == "}":
+                currentToken = tp.RBPAREN
+                state = States.HECHO
+            elif c == ",":
+                currentToken = tp.COMMA
+                state = States.HECHO
+            elif c == ";":
+                currentToken = tp.SEMMICOL
+                state = States.HECHO
+            else:
                 
+                currentToken = tp.ERROR
+                state = States.HECHO 
+        elif state == States.EENTEROS:
+           
+            if c == ".":
+                state = States.EPREAL
+                TokenString.append(c)
+                consume = True
+            elif not c.isdigit():
+                currentToken = tp.ENTERO
+                state = States.HECHO
+                consume = False
+                
+            else:
+                TokenString.append(c)
+        elif state == States.EID:
+            
+            if c.isdigit() or c == "_" or c.isalnum() and c != "EOF": 
+               TokenString.append(c)
+            else : 
+               currentToken  = tp.ID
+               currentToken = isReservedWord("".join(TokenString))
+               state = States.HECHO 
+        elif state == States.EPREAL:
+            if c.isdigit() :
+                state = States.EREAL
+                TokenString.append(c)
+            else : 
+                state = States.HECHO
+                currentToken = tp.ERROR
+        elif state == States.EREAL:
+            if c.isdigit():
+                TokenString.append(c)
+            else : 
+                consume = False
+                currentToken = tp.NUMREAL
+                state = States.HECHO
+    printToken(currentToken,"".join(TokenString))
+    TokenString.clear()
+    return currentToken
+
+while getToken() != tp.ENDFILE:
+    pass

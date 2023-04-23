@@ -30,6 +30,7 @@ class TokenType(Enum):
     SEMMICOL = 23
     LBPAREN = 24
     RBPAREN = 25
+    
 
     MAIN = 26
     IF = 27
@@ -45,4 +46,6 @@ class TokenType(Enum):
     REAL = 37
     INT = 38
     BOOLEAN = 39
+
+    REMAINDER = 40
 lineno = 0

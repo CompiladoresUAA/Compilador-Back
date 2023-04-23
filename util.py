@@ -2,10 +2,11 @@ from globall import TokenType as tp
 
 
 def printToken(token,tokenString):
-    if ((tp.MAIN or tp.IF or tp.THEN or tp.ELSE
-    or tp.END or tp.DO or tp.WHILE or tp.REPEAT
-    or tp.UNTIL or tp.CIN or tp.COUT or tp.REAL
-    or tp.INT or tp.BOOLEAN) == token) :
+    
+    if (token in [tp.MAIN , tp.IF , tp.THEN , tp.ELSE
+    , tp.END , tp.DO , tp.WHILE , tp.REPEAT
+    , tp.UNTIL , tp.CIN , tp.COUT , tp.REAL
+    , tp.INT , tp.BOOLEAN]) :
         print ( "RESERVED WORD {0}".format(tokenString) )
     elif ( tp.PLUS == token ):
         print( "+" )
