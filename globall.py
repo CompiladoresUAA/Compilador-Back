@@ -47,5 +47,5 @@ class TokenType(Enum):
     INT = 38
     BOOLEAN = 39
 
-    REMAINDER = 40
+    REMAINDER = 40#%
 lineno = 0

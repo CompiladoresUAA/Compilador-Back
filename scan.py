@@ -98,10 +98,10 @@ def getToken()->tp:
     state:States = States.INICIO
     
     while state != States.HECHO:
-      
+        
         if consume == True: 
             c = getNextChar()
-        
+       
         if state == States.INICIO:
             consume = True
             while c in ['\n' , '\t' , ' '] :
@@ -111,7 +111,7 @@ def getToken()->tp:
                 c = "EOF"
                
             TokenString.append(c)
-           
+            
             if   c == "EOF":
                 state = States.HECHO
                 currentToken = tp.ENDFILE
@@ -127,6 +127,7 @@ def getToken()->tp:
             elif c == "-":
                 state = States.EMENOS
             elif c == "/":
+                
                 state = States.EPCOMM
             elif c == ">":
                 state = States.EMAYOR
@@ -181,6 +182,7 @@ def getToken()->tp:
                currentToken  = tp.ID
                currentToken = isReservedWord("".join(TokenString))
                state = States.HECHO 
+               consume = False
         elif state == States.EPREAL:
             if c.isdigit() :
                 state = States.EREAL
@@ -195,6 +197,68 @@ def getToken()->tp:
                 consume = False
                 currentToken = tp.NUMREAL
                 state = States.HECHO
+        elif state == States.EASIGNA:
+            if c == "=":
+                currentToken = tp.ASSIGN
+                state = States.HECHO
+                TokenString.append(c)
+            else:
+                currentToken = tp.ERROR
+                state = States.HECHO
+                consume = False
+        elif state == States.EMAS:
+            if c == "+":
+                currentToken = tp.PLUSP
+                state = States.HECHO
+                TokenString.append(c)
+            else:
+                currentToken = tp.PLUS
+                state = States.HECHO
+                consume = False        
+        elif state == States.EMENOS:
+                if c == "-":
+                    currentToken = tp.LESSL
+                    state = States.HECHO
+                    TokenString.append(c)
+                else : 
+                    currentToken = tp.MINUS
+                    state = States.HECHO
+                    consume = False 
+        elif state == States.EPCOMM:
+            if c == "/":
+                TokenString.clear()      
+                c = getNextChar()
+                while c !='\n':
+                    c = getNextChar()
+                #    
+                state = States.INICIO
+                consume = True
+            elif c == "*":
+                TokenString.clear()      
+                state = States.EPCOMMMULTI
+                consume =True
+            else : 
+                currentToken = tp.OVER
+                state = States.HECHO
+                consume = False
+        elif state == States.EPCOMMMULTI:
+            if c == "*":
+                state = States.ECOMMMULTI
+            elif c == "EOF":
+                state = States.HECHO
+                currentToken = tp.ERROR
+            else:
+                pass 
+        elif state == States.ECOMMMULTI:
+            if c == "/":
+                state = States.INICIO
+            elif c == "*":
+                pass
+            elif c == "EOF":
+                currentToken = tp.ERROR
+                state = States.HECHO
+            else:
+                state = States.EPCOMMMULTI  
     printToken(currentToken,"".join(TokenString))
     TokenString.clear()
     return currentToken
