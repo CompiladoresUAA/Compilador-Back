@@ -197,6 +197,18 @@ def getToken()->tp:
                 consume = False
                 currentToken = tp.NUMREAL
                 state = States.HECHO
+        elif state == States.EMAYOR:
+            if c == '=':
+                currentToken = tp.GREATERET #Mayor Igual
+                state = States.HECHO
+        elif state == States.EMENOR:
+            if c == '=':
+                currentToken = tp.LESSET #Menor Igual
+                state = States.HECHO
+            elif c == '>':
+                currentToken = tp.DIFF #### Diferente <>
+                state = States.HECHO
+            ###########################################################################
         elif state == States.EASIGNA:
             if c == "=":
                 currentToken = tp.ASSIGN
