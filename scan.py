@@ -201,6 +201,11 @@ def getToken()->tp:
             if c == '=':
                 currentToken = tp.GREATERET #Mayor Igual
                 state = States.HECHO
+            else : 
+                consume = False
+                currentToken = tp.GREATERT
+                state = States.HECHO
+
         elif state == States.EMENOR:
             if c == '=':
                 currentToken = tp.LESSET #Menor Igual
@@ -208,6 +213,10 @@ def getToken()->tp:
             elif c == '>':
                 currentToken = tp.DIFF #### Diferente <>
                 state = States.HECHO
+            else :
+                currentToken = tp.LESST
+                state = States.HECHO
+                consume = False
             ###########################################################################
         elif state == States.EASIGNA:
             if c == "=":
@@ -232,6 +241,11 @@ def getToken()->tp:
                     currentToken = tp.LESSL
                     state = States.HECHO
                     TokenString.append(c)
+                elif c.isdigit() :
+                    currentToken = tp.ENTERO
+                    state = States.EENTEROS
+                    TokenString.append(c)
+                    
                 else : 
                     currentToken = tp.MINUS
                     state = States.HECHO
