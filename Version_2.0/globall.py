@@ -1,5 +1,17 @@
 from enum import Enum
+import os
 from typing import Union
+rutaToken = os.path.join(os.getcwd(),'Archivo_Tokens.txt')
+rutaError =os.path.join(os.getcwd(),'Archivo_Errores.txt')
+
+if os.path.exists(rutaToken):
+    os.remove(rutaToken)
+    #print("Removio el Token")
+
+if os.path.exists(rutaError):
+    os.remove(rutaError)
+    #print("Removio el Errores")
+
 MAXRESERVEDWORDS = 14
 
 class TokenType(Enum):
@@ -49,6 +61,7 @@ class TokenType(Enum):
 
     REMAINDER = 40#%
 lineno = 0
+colpos = 0
 #############################################################################
 ####################                     ####################################
 #################### Analisis Sintactico ####################################
@@ -79,13 +92,23 @@ class DecKind:
     BOOLEANK = 4
 
 class TreeNode:
-    def __init__(self,child,sibling,lineno,nodekind,kind,attr):
-        self.child:TreeNode = child
-        self.sibling:TreeNode = sibling
-        self.lineno:int = lineno
-        self.nodekind:NodeKind = nodekind
-        self.kind:Union[StmtKind, ExpKind, DecKind] = kind
-        self.attr:Union[TokenType,int,str] = attr
+    def __init__(self):
+        self.child:list = []
+        self.sibling:list = []
+        self.lineno:int = 0
+        self.nodekind:NodeKind = 0
+        self.kind:Union[StmtKind, ExpKind, DecKind] = -1
+        self.attr:Union[TokenType,int,str] = -1
+
+    #def __init__(self,child,sibling,lineno,nodekind,kind,attr):
+    #    self.child:list = child
+    #    self.sibling:list = sibling
+    #    self.lineno:int = lineno
+    #    self.nodekind:NodeKind = nodekind
+    #    self.kind:Union[StmtKind, ExpKind, DecKind] = kind
+    #    self.attr:Union[TokenType,int,str] = attr
+    def toString(self)->str:
+        return ''+str(self.lineno)+' '+str(self.nodekind)+' '+str(self.kind)+' '+str(self.attr)
 
 
 

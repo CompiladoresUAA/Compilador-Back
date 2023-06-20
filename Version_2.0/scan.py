@@ -1,4 +1,6 @@
 import sys
+import os 
+import globall
 from globall import TokenType as tp
 from globall import lineno
 from enum import Enum
@@ -10,7 +12,7 @@ linea = str()
 MAXBUFFER = 1024
 namefile = sys.argv[1]
 source = open(namefile,'r')
-colpos = 0
+
 consume:bool  = True
 c:str
 reservedWords ={
@@ -55,33 +57,33 @@ class States(Enum):
     HECHO = 19
     
 def getNextChar():
-    global colpos
+    
     global bufsize
     global source
-    global linea,lineno
-    if( not(colpos < bufsize) ):
+    global linea
+    if( not(globall.colpos < bufsize) ):
         linea = source.readline()
         
         if  linea:
-            lineno+=1
+            globall.lineno+=1
+            
             bufsize = len(linea)
-            colpos = 0
-            char = linea[colpos]
-            colpos+=1
+            globall.colpos = 0
+            char = linea[globall.colpos]
+            globall.colpos+=1
             return char
         else:
             
             return "EOF"    
     else:
-        char = linea[colpos]
+        char = linea[globall.colpos]
         
-        colpos+=1
+        globall.colpos+=1
         return char
     
         
 def ungetChar():
-    global colpos
-    colpos-=1
+    globall.colpos-=1
 
 def isReservedWord(tokenString:str)->tp:
     for key in reservedWords.keys():
@@ -193,6 +195,7 @@ def getToken()->tp:
             else : 
                 state = States.HECHO
                 currentToken = tp.ERROR
+                consume = False
         elif state == States.EREAL:
             if c.isdigit():
                 TokenString.append(c)
@@ -244,11 +247,6 @@ def getToken()->tp:
                     currentToken = tp.LESSL
                     state = States.HECHO
                     TokenString.append(c)
-                elif c.isdigit() :
-                    currentToken = tp.ENTERO
-                    state = States.EENTEROS
-                    TokenString.append(c)
-                    
                 else : 
                     currentToken = tp.MINUS
                     state = States.HECHO
@@ -294,3 +292,4 @@ def getToken()->tp:
 
 while getToken() != tp.ENDFILE:
     pass
+#fileoutput.close()

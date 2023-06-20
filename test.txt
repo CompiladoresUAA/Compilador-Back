@@ -7,5 +7,17 @@ real main endint
 :a+
 +++---
 -
+EOF
 rsasa
 /*dhbhsyvdasyg*******/
+<><>=<=
+>=
+-100.10
+=
+
+
+int if then else
+end do while repeat
+until cin cout real
+int boolean
+* 100.205
