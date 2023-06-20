@@ -17,6 +17,12 @@ def match(expected:TokenType):
     if( token == expected):
         token = getTokenSintax()
     else:
+        print("El token es -> "+str(token)+"  El esperado es -> "+str(expected))
+        while(True):
+            token = getTokenSintax()
+            if(token==TokenType.SEMMICOL.value):
+                break
+
         pass
     
 def list_dec()->Tree:
@@ -93,11 +99,11 @@ def lista_ids()->Tree:
         t.append(Tree(tokenString,[]))
         match(TokenType.ID.value)
         while( token == TokenType.COMMA.value ):
-           
+            
             match(TokenType.COMMA.value)
             if( token == TokenType.ID.value ):
                 t.append(Tree(tokenString,[]))
-                match(TokenType.ID.value)
+                match(TokenType.ID.value)  
     return t
 
 
