@@ -57,13 +57,13 @@ def dec_var()->Tree:
     
     if( token == TokenType.INT.value ):
        
-        t.append(Tree(str(token),[]))
+        t.append(Tree(str(TokenType.INT.name),[]))
         match(TokenType.INT.value)
     elif ( token == TokenType.BOOLEAN.value ):
-        t.append(Tree(str(token),[]))
+        t.append(Tree(str(TokenType.BOOLEAN.name),[]))
         match(TokenType.BOOLEAN.value)
     elif( token == TokenType.REAL.value ):
-        t.append(Tree(str(token),[]))
+        t.append(Tree(str(TokenType.REAL.name),[]))
         match(TokenType.REAL.value)
     else:
         sintaxError('Date Type Unknown')
@@ -108,6 +108,8 @@ def lista_stmt()->Tree: #Aqui debería de haber un opcionalidad de un nodo vacio
     
     t = Tree('Lista de stmt',[])
     while( token == TokenType.MAIN.value or token == TokenType.IF.value or token==TokenType.DO.value or token == TokenType.WHILE.value or token == TokenType.CIN.value or token == TokenType.COUT.value or token == TokenType.ID.value):
+        if(token==TokenType.DO.value):
+            print("do until-----------------------------------------------")
         t.append(statement())
         
     return t
@@ -154,8 +156,12 @@ def assign_stmt()->Tree:
     if( token == TokenType.ID.value):
         t.append(Tree(tokenString,[]))
     match(TokenType.ID.value)
-    match(TokenType.ASSIGN.value)
-    t[0].append(stmt_exp()) #Por que t[0] ?? y falta un if --------------------------------------------------------------
+    if( token == TokenType.ASSIGN.value ):
+        match(TokenType.ASSIGN.value)
+        t[0].append(stmt_exp()) #Por que t[0] ?? y falta un if --------------------------------------------------------------
+    else:
+        t[0].append(Tree('unexpected Token',[]))
+        token = getTokenSintax()
     return t
 def stmt_exp()->Tree:
     global token 
@@ -165,6 +171,7 @@ def stmt_exp()->Tree:
     
     if( token == TokenType.SEMMICOL.value ):
         t.append(Tree(';',[]))
+        match(TokenType.SEMMICOL.value)
     else:
         t.append(exp())
         match(TokenType.SEMMICOL.value)
@@ -237,7 +244,7 @@ def exp()->Tree:
     if( ( token == TokenType.LESSET.value ) or ( token == TokenType.LESST.value )  or
         ( token == TokenType.GREATERT.value ) or ( token == TokenType.GREATERET.value ) 
         or ( token == TokenType.EQ.value ) or (token == TokenType.DIFF.value)):
-        p = Tree('Comp-Operador' + str(token),[])
+        p = Tree(str(TokenType(token).name),[])
         p.append(t)
      
         t = p
@@ -255,7 +262,7 @@ def simp_exp()->Tree:
     
     while( ( token == TokenType.PLUS.value) or ( token == TokenType.MINUS.value ) 
           or ( token == TokenType.PLUSP.value ) or ( token == TokenType.LESSL.value ) ):
-        p = Tree('Sum-Operador',[])
+        p = Tree(str(TokenType(token).name),[])
         p.append(t)
         t = p 
         match(token)
@@ -268,7 +275,7 @@ def term()->Tree:
     print("term")
     
     while( (token == TokenType.TIMES.value) or (token==TokenType.OVER.value)or(token == TokenType.REMAINDER.value)):
-        p = Tree('Mult-Operador'+str(token),[])
+        p = Tree(str(TokenType(token).name),[])
         p.append(t)
         t = p        
         match(token)
