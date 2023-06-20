@@ -1,0 +1,9 @@
+digraph {
+	S
+	NP
+	NP -> John
+	S -> NP
+	VP
+	VP -> runs
+	S -> VP
+}

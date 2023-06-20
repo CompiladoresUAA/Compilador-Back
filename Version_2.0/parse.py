@@ -18,21 +18,23 @@ def match(expected:TokenType):
         token = getTokenSintax()
     else:
         pass
-    
+import inspect    
 def list_dec()->Tree:
     global token
-    global root
-    t = Tree('p',[])
-    p = t.append(dec())
-    print("list_dec")
+    t = Tree('lista de dec',[])
+    p = t.extend(dec())
+    
+    caller = inspect.currentframe().f_back.f_code.co_name
+    print(f"list_dec {caller}")
     while( token != TokenType.ENDFILE.value  and token != TokenType.END.value
           and token != TokenType.UNTIL.value and token != TokenType.ELSE.value
           and token != TokenType.RBPAREN.value):
-        
+        print(f"lst {caller}")
         match(TokenType.SEMMICOL.value)################dsdsd
         q = dec()
-        t.append(q)   
-    
+        t.extend(q)   
+    if(len(t) == 0):
+        t = Tree('',[])
  
     return t
 
@@ -52,24 +54,25 @@ def dec()->Tree:
 def dec_var()->Tree:
     global token 
     t = Tree('Declaracion',[])
+    e = Tree('Declaracion',[])
     global tokenString
     print("dec_var")
     
     if( token == TokenType.INT.value ):
        
-        t.append(Tree(str(TokenType.INT.name),[]))
+        e.append(Tree(str(TokenType.INT.name),[]))
         match(TokenType.INT.value)
     elif ( token == TokenType.BOOLEAN.value ):
-        t.append(Tree(str(TokenType.BOOLEAN.name),[]))
+        e.append(Tree(str(TokenType.BOOLEAN.name),[]))
         match(TokenType.BOOLEAN.value)
     elif( token == TokenType.REAL.value ):
-        t.append(Tree(str(TokenType.REAL.name),[]))
+        e.append(Tree(str(TokenType.REAL.name),[]))
         match(TokenType.REAL.value)
     else:
         sintaxError('Date Type Unknown')
         token = getTokenSintax()
     
-    t.append(lista_ids())
+    e.append(lista_ids())
     #if( token == TokenType.ID.value ):
     #    t.append(Tree(tokenString,[]))   
     #match(TokenType.ID.value)
@@ -79,8 +82,12 @@ def dec_var()->Tree:
     #        t.append(Tree(tokenString,[]))
     #        match(TokenType.ID.value)   
         
-
-    match(TokenType.SEMMICOL.value)
+    if( token == TokenType.SEMMICOL.value ):
+        
+        match(TokenType.SEMMICOL.value)
+    else:
+        sintaxError('unexpectd token')
+    t.append(e)    
     return t
 
 def lista_ids()->Tree:
@@ -90,6 +97,7 @@ def lista_ids()->Tree:
     
     t = Tree('',[])
     if( token == TokenType.ID.value ):
+        t = Tree('Variable',[])
         t.append(Tree(tokenString,[]))
         match(TokenType.ID.value)
         while( token == TokenType.COMMA.value ):
@@ -98,19 +106,30 @@ def lista_ids()->Tree:
             if( token == TokenType.ID.value ):
                 t.append(Tree(tokenString,[]))
                 match(TokenType.ID.value)
+
     return t
 
-
+import inspect
 def lista_stmt()->Tree: #Aqui debería de haber un opcionalidad de un nodo vacio
     global token 
     global tokenString
-    print("lista_stmt")
+    caller = inspect.currentframe().f_back.f_code.co_name
+    print("lista_stmt "+ str(TokenType(token).name)+' '+caller)
     
     t = Tree('Lista de stmt',[])
-    while( token == TokenType.MAIN.value or token == TokenType.IF.value or token==TokenType.DO.value or token == TokenType.WHILE.value or token == TokenType.CIN.value or token == TokenType.COUT.value or token == TokenType.ID.value):
-        if(token==TokenType.DO.value):
-            print("do until-----------------------------------------------")
-        t.append(statement())
+    if(token == TokenType.MAIN.value or token == TokenType.IF.value or token==TokenType.DO.value or token == TokenType.WHILE.value or token == TokenType.CIN.value or token == TokenType.COUT.value or token == TokenType.ID.value):
+        t = Tree('Lista de stmt',[])
+        while( token == TokenType.MAIN.value or token == TokenType.IF.value or token==TokenType.DO.value or token == TokenType.WHILE.value or token == TokenType.CIN.value or token == TokenType.COUT.value or token == TokenType.ID.value):
+            if(token==TokenType.DO.value):
+                print("do until-----------------------------------------------")
+            t.append(statement())
+    
+    else:
+        t = Tree('',[])
+        print("Unexpected Token "+ str(token))
+        sintaxError("Unexpected Token "+ str(token))
+        token = getTokenSintax()
+
         
     return t
 
@@ -144,7 +163,7 @@ def main_stmt()->Tree:
     t  = Tree('Main',[])
     match(TokenType.MAIN.value)
     match(TokenType.LBPAREN.value)
-    t.append(list_dec())
+    t.extend(list_dec())
     match(TokenType.RBPAREN.value)
     return t
 def assign_stmt()->Tree:
@@ -158,10 +177,10 @@ def assign_stmt()->Tree:
     match(TokenType.ID.value)
     if( token == TokenType.ASSIGN.value ):
         match(TokenType.ASSIGN.value)
-        t[0].append(stmt_exp()) #Por que t[0] ?? y falta un if --------------------------------------------------------------
+        t.extend(stmt_exp()) #Por que t[0] ?? y falta un if --------------------------------------------------------------
     else:
-        t[0].append(Tree('unexpected Token',[]))
-        token = getTokenSintax()
+        t.append(Tree('',[]))
+        
     return t
 def stmt_exp()->Tree:
     global token 
@@ -184,11 +203,11 @@ def if_stmt()->Tree:
     t = Tree('If',[])
     match(TokenType.IF.value)
     t.append(exp())
-    t.append(list_dec())
+    t.extend(list_dec())
     if ( token == TokenType.ELSE.value ):
         match(TokenType.ELSE.value)
         e = Tree('Else',[])
-        e.append(list_dec())
+        e.extend(list_dec())
         t.append(e)
     match(TokenType.END.value)
     return t
@@ -201,7 +220,7 @@ def it_stmt()->Tree:
     match(TokenType.WHILE.value)
     t.append(exp())
     match(TokenType.LBPAREN.value)
-    t.append(list_dec())
+    t.extend(list_dec())
     match(TokenType.RBPAREN.value)
     return t
 
@@ -316,9 +335,9 @@ def factor()->Tree:
     return t        
 def parse()->Tree:
     global token
+    global root
     root = Tree('program',[])
     token = getTokenSintax()
-   
     root.append(list_dec())
     
     if( token != TokenType.ENDFILE.value ):
@@ -348,3 +367,12 @@ def getTokenSintax():
 r = parse()
 print(r.pretty_print())
 convert_to_json(r)
+
+from exampleTree import convert_tree
+from graphviz import Digraph
+# Crear el gráfico de Graphviz a partir del árbol de NLTK
+#dot = Digraph()
+#convert_tree(r, dot)
+
+# Mostrar el gráfico utilizando Graphviz
+#dot.render('tree', format='png', view=True)

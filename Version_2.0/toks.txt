@@ -1,5 +1,9 @@
 RESERVED-WORD	main
 LBPAREN	{
+ID	y
+ID	y
+ID	y
+RESERVED-WORD	int
 RESERVED-WORD	int
 ID	float
 ID	y
